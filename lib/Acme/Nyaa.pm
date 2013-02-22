@@ -5,43 +5,90 @@ use utf8;
 use 5.010000;
 use Module::Load;
 
-use version; our $VERSION = qv('0.0.3');
+use version; our $VERSION = qv('0.0.4');
+my $Default = 'ja';
 
 sub new
 {
 	my $class = shift;
 	my $argvs = { @_ };
 
-	$argvs->{'language'} ||= 'ja';
+	return $class if ref $class eq __PACKAGE__;
+	$argvs->{'objects'} = [];
+	$argvs->{'language'} ||= $Default;
 	$argvs->{'loaded-languages'} = [];
+	$argvs->{'objectid'} = int rand 2**24;
 
-	return bless $argvs, __PACKAGE__;
+	my $nyaan = bless $argvs, __PACKAGE__;
+	my $klass = $nyaan->loadmodule( $argvs->{'language'} );
+	my $this1 = $nyaan->findobject( $klass, 1 );
+
+	$nyaan->{'subclass'} = $klass;
+	return $nyaan;
+}
+
+sub subclass
+{
+	my $self = shift;
+	return $self->{'subclass'};
+}
+
+sub language
+{
+	my $self = shift;
+	my $lang = shift // $self->{'language'};
+
+	return $self->{'language'} if $lang eq $self->{'language'};
+	return $self->{'language'} unless $lang =~ m/\A[a-zA-Z]{2}\z/;
+
+	my $nekoobject = undef;
+	my $referclass = $self->loadmodule( $lang );
+	return $self->{'language'} unless length $referclass;
+	return $self->{'language'} if $referclass eq $self->subclass;
+
+	$nekoobject = $self->findobject( $referclass, 1 );
+	return $self->{'language'} unless ref $nekoobject eq $referclass;
+
+	$self->{'language'} = $lang;
+	$self->{'subclass'} = $referclass;
+	return $self->{'language'};
+}
+
+sub objects
+{
+	my $self = shift;
+	$self->{'objects'} ||= [];
+	return $self->{'objects'};
 }
 
 sub cat
 {
 	my $self = shift;
 	my $text = shift // return q();
-	my $argv = { @_ };
-	my $lang = $argv->{'language'} || $self->{'language'};
+	my $neko = $self->findobject( $self->subclass, 1 );
 
-	my $referclass = $self->loadmodule( $lang );
-
-	return $text unless length $referclass;
-	return $referclass->cat( $text );
+	return $text unless ref $neko;
+	return $neko->cat( $text );
 }
 
 sub neko
 {
 	my $self = shift;
 	my $text = shift // return q();
-	my $argv = { @_ };
-	my $lang = $argv->{'language'} || $self->{'language'};
+	my $neko = $self->findobject( $self->subclass, 1 );
 
-	my $referclass = $self->loadmodule( $lang );
+	return $text unless ref $neko;
+	return $neko->neko( $text );
+}
 
-	return $text unless length $referclass;
-	return $referclass->neko( $text );
+sub nyaa
+{
+	my $self = shift;
+	my $text = shift // q();
+	my $neko = $self->findobject( $self->subclass, 1 );
+
+	return $text unless ref $neko;
+	return $neko->nyaa( $text );
 }
 
 sub loadmodule
@@ -51,12 +98,12 @@ sub loadmodule
 	my $list = $self->{'loaded-languages'};
 
 	my $referclass = __PACKAGE__.'::'.ucfirst( lc $lang );
-	my $alterclass = __PACKAGE__.'::Ja';
+	my $alterclass = __PACKAGE__.'::'.ucfirst( $Default );
 
 	return q() unless length $lang;
 	return $referclass if( grep { lc $lang eq $_ } @$list );
 
-	eval { 
+	eval {
 		Module::Load::load $referclass; 
 		push @$list, lc $lang;
 	};
@@ -65,13 +112,37 @@ sub loadmodule
 	return $alterclass if( grep { 'ja' eq $_ } @$list );
 
 	Module::Load::load $alterclass;
-	push @$list, 'ja';
+	push @$list, $Default;
 	return $alterclass;
+}
+
+sub findobject
+{
+	my $self = shift;
+	my $name = shift;
+	my $new1 = shift || 0;
+	my $this = undef;
+	my $objs = $self->{'objects'} || [];
+
+	return unless length $name;
+
+	foreach my $e ( @$objs )
+	{
+		next unless ref($e) eq $name;
+		$this = $e;
+	}
+	return $this if ref $this;
+	return unless $new1;
+
+	$this = $name->new;
+	push @$objs, $this;
+	return $this;
 }
 
 
 1;
 __END__
+
 =encoding utf8
 
 =head1 NAME
@@ -80,36 +151,51 @@ Acme::Nyaa - Convert texts like which a cat is talking in Japanese
 
 =head1 SYNOPSIS
 
-  use Acme::Nyaa;
+	use Acme::Nyaa;
+	my $kijitora = Acme::Nyaa->new;
 
-  my $kijitora = Acme::Nyaa->new;
-
-  print $kijitora->cat( \'猫がかわいい。' ); # => 猫がかわいいニャー。
-  print $kijitora->neko( \'神と和解せよ' ); # => ネコと和解せよ
+	print $kijitora->cat( \'猫がかわいい。' );	# => 猫がかわいいニャー。
+	print $kijitora->neko( \'神と和解せよ' );	# => ネコと和解せよ
 
 
 =head1 DESCRIPTION
   
-  Acme::Nyaa is a converter which translate Japanese texts to texts
-  like which a cat talking.
+Acme::Nyaa is a converter which translate Japanese texts to texts like which a cat talking.
+Language modules are available only Japanese (L<Acme::Nyaa::Ja>) for now.
 
-  Nyaa is "ニャー", Cats living in Japan meows "nyaa".
+Nyaa is C<ニャー>, Cats living in Japan meows C<nyaa>.
 
-=head1 METHODS
+=head1 CLASS METHODS
 
-=over
+=head2 B<new( [I<%argv>] )>
 
-=item new
-  new() is a constructor of Acme::Nyaa
+new() is a constructor of Acme::Nyaa
 
-=item cat
-  cat() is a converter that appends string "ニャー" at the end of
-  each sentence.
+=head1 INSTANCE METHODS
 
-=item neko
-  neko() is a converter that replace a noun with 'ネコ'.
+=head2 B<cat( I<\$text> )>
 
-=back
+cat() is a converter that appends string C<ニャー> at the end of each sentence.
+
+=head2 B<neko( I<\$text> )>
+
+neko() is a converter that replace a noun with C<ネコ>.
+
+=head2 B<nyaa( [I<\$text>] )>
+
+nyaa() returns string: C<ニャー>.
+
+=head1 REPOSITORY
+
+https://github.com/azumakuniyuki/p5-Acme-Nyaa
+
+=head2 INSTALL FROM REPOSITORY
+
+	% sudo cpanm Module::Install
+	% cd /usr/local/src
+	% git clone git://github.com/azumakuniyuki/p5-Acme-Nyaa.git
+	% cd ./p5-Acme-Nyaa
+	% perl Makefile.PL && make && make test && sudo make install
 
 =head1 AUTHOR
 
@@ -117,9 +203,12 @@ azumakuniyuki E<lt>perl.org [at] azumakuniyuki.orgE<gt>
 
 =head1 SEE ALSO
 
+L<Acme::Nyaa::Ja> - Japanese module for Acme::Nyaa
+
 =head1 LICENSE
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =cut
+
