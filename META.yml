@@ -21,8 +21,8 @@ no_index:
     - xt
 requires:
   Module::Load: 0
-  perl: 5.10.0
+  perl: 5.10.1
 resources:
   license: http://dev.perl.org/licenses/
   repository: origin
-version: 0.000004
+version: 0.000005

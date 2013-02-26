@@ -34,7 +34,7 @@
       "runtime" : {
          "requires" : {
             "Module::Load" : 0,
-            "perl" : "5.010"
+            "perl" : "5.010001"
          }
       }
    },
@@ -44,5 +44,5 @@
          "http://dev.perl.org/licenses/"
       ]
    },
-   "version" : "0.000003"
+   "version" : "0.000004"
 }
