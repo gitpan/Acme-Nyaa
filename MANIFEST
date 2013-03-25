@@ -23,6 +23,7 @@ README
 t/00_compile.t
 t/10_acme-nyaa.t
 t/11_acme-nyaa-ja.t
+t/a-part-of-i-am-a-cat.ja.txt
 t/cat-related-text.af.txt
 t/cat-related-text.ar.txt
 t/cat-related-text.de.txt
