@@ -26,7 +26,7 @@
       "build" : {
          "requires" : {
             "ExtUtils::MakeMaker" : "6.59",
-            "Test::More" : "0"
+            "Test::More" : "0.98"
          }
       },
       "configure" : {
@@ -46,7 +46,8 @@
       },
       "runtime" : {
          "requires" : {
-            "Module::Load" : "0",
+            "Encode" : "2.42",
+            "Module::Load" : "0.18",
             "perl" : "5.010001"
          }
       }
@@ -54,14 +55,14 @@
    "provides" : {
       "Acme::Nyaa" : {
          "file" : "lib/Acme/Nyaa.pm",
-         "version" : "v0.0.8"
+         "version" : "v0.0.9"
       },
       "Acme::Nyaa::Ja" : {
          "file" : "lib/Acme/Nyaa/Ja.pm"
       }
    },
    "release_status" : "stable",
-   "version" : "0.0.8",
+   "version" : "0.0.9",
    "x_contributors" : [
       "azumakuniyuki <azumakuniyuki@gmail.com>"
    ]

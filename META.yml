@@ -4,7 +4,7 @@ author:
   - 'azumakuniyuki <perl.org [at] azumakuniyuki.org>'
 build_requires:
   ExtUtils::MakeMaker: 6.59
-  Test::More: 0
+  Test::More: 0.98
 configure_requires:
   CPAN::Meta: 0
   CPAN::Meta::Prereqs: 0
@@ -28,12 +28,13 @@ no_index:
 provides:
   Acme::Nyaa:
     file: lib/Acme/Nyaa.pm
-    version: v0.0.8
+    version: v0.0.9
   Acme::Nyaa::Ja:
     file: lib/Acme/Nyaa/Ja.pm
 requires:
-  Module::Load: 0
+  Encode: 2.42
+  Module::Load: 0.18
   perl: 5.010001
-version: 0.0.8
+version: 0.0.9
 x_contributors:
   - 'azumakuniyuki <azumakuniyuki@gmail.com>'

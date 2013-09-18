@@ -5,8 +5,10 @@ META.json
 README.md
 bin/nyaa
 cpanfile
+eg/nyaaproxy.psgi
 lib/Acme/Nyaa.pm
 lib/Acme/Nyaa/Ja.pm
+minil.toml
 t/00_compile.t
 t/10_acme-nyaa.t
 t/11_acme-nyaa-ja.t
