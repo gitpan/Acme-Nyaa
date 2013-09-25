@@ -8,7 +8,6 @@ use Plack::Request;
 use Plack::Builder;
 use Acme::Nyaa;
 
-my $nekonyaaaa = Acme::Nyaa->new();
 my $httpobject = Furl->new( 
     'agent' => 'Acme::Nyaa/nyaaproxy/'.$Acme::Nyaa::VERSION, 
     'timeout' => 10
@@ -17,6 +16,7 @@ my $htresponse = undef;
 my $htcontents = undef;
 my $servername = undef;
 my $requesturl = undef;
+my $nekonyaaaa = undef;
 
 builder {
     sub {
@@ -42,6 +42,7 @@ builder {
             if( $htresponse->is_success ) {
 
                 $htcontents = $htresponse->content;
+                $nekonyaaaa = Acme::Nyaa->new;
 
                 if( $htresponse->content_type =~ m{\Atext/(?:plain|html)} ) {
 
@@ -69,7 +70,7 @@ builder {
             return [ 
                 404, 
                 [ 'Content-Type' => 'text/plain' ],
-                [ 'Usage: http://127.0.0.1:2222/http://ja.wikipedia.org/柴犬' ]
+                [ 'Usage: http://127.0.0.1:2222/http://ja.wikipedia.org/wiki/柴犬' ]
             ];
         }
     };

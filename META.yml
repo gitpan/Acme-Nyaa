@@ -28,13 +28,13 @@ no_index:
 provides:
   Acme::Nyaa:
     file: lib/Acme/Nyaa.pm
-    version: v0.0.9
+    version: v0.0.10
   Acme::Nyaa::Ja:
     file: lib/Acme/Nyaa/Ja.pm
 requires:
   Encode: 2.42
   Module::Load: 0.18
   perl: 5.010001
-version: 0.0.9
+version: 0.0.10
 x_contributors:
   - 'azumakuniyuki <azumakuniyuki@gmail.com>'
